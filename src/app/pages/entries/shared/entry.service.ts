@@ -1,3 +1,4 @@
+import { CategoryService } from './../../categories/shared/category.service';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -13,7 +14,7 @@ export class EntryService {
 
   private apiPath = 'api/lancamentos';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private categoryService: CategoryService) { }
 
   getAll(): Observable<Lancamento[]> {
     return this.http.get(this.apiPath).pipe(
@@ -32,18 +33,30 @@ export class EntryService {
   }
 
   create(lancamento: Lancamento): Observable<Lancamento> {
-    return this.http.post(this.apiPath, lancamento).pipe(
-      catchError(this.handleError),
-      map(this.jsonDataToLancamento)
+    return this.categoryService.getById(lancamento.categoriaId).pipe(
+      flatMap(categoria => {
+        lancamento.categoria = categoria;
+
+        return this.http.post(this.apiPath, lancamento).pipe(
+          catchError(this.handleError),
+          map(this.jsonDataToLancamento)
+        );
+      })
     );
   }
 
   update(lancamento: Lancamento): Observable<Lancamento> {
     const url = `${this.apiPath}/${lancamento.id}`;
 
-    return this.http.put(url, lancamento).pipe(
-      catchError(this.handleError),
-      map(() => lancamento)
+    return this.categoryService.getById(lancamento.categoriaId).pipe(
+      flatMap(categoria => {
+        lancamento.categoria = categoria;
+
+        return this.http.put(url, lancamento).pipe(
+          catchError(this.handleError),
+          map(() => lancamento)
+        );
+      })
     );
   }
 
