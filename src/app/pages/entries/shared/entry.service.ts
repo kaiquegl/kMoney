@@ -12,7 +12,7 @@ import { Lancamento } from './entry.model';
 export class EntryService extends BaseResourceService<Lancamento> {
 
   constructor(private categoryService: CategoryService, protected injector: Injector) {
-    super('api/lancamentos', injector);
+    super('api/lancamentos', injector, Lancamento.fromJson);
   }
 
   create(lancamento: Lancamento): Observable<Lancamento> {
@@ -31,19 +31,5 @@ export class EntryService extends BaseResourceService<Lancamento> {
         return super.update(lancamento);
       })
     );
-  }
-
-  // METODOS PRIVADOS
-  protected jsonDataToResources(jsonData: any[]): Lancamento[] {
-    const lancamentos: Lancamento[] = [];
-    jsonData.forEach(element => {
-      const lancamento = Object.assign(new Lancamento(), element);
-      lancamentos.push(lancamento);
-    });
-    return lancamentos;
-  }
-
-  protected jsonDataToResource(jsonData: any): Lancamento {
-    return Object.assign(new Lancamento(), jsonData);
   }
 }
